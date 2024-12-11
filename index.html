@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Ecuaciones Cuadráticas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9ffe6;
+            border: 1px solid #b6f1b6;
+            border-radius: 4px;
+        }
+        .chart {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Calculadora de Ecuaciones Cuadráticas</h1>
+        <p>Introduce los coeficientes de la ecuación cuadrática ax<sup>2</sup> + bx + c = 0:</p>
+        <form id="quadraticForm">
+            <label for="a">Coeficiente a:</label>
+            <input type="number" id="a" required>
+
+            <label for="b">Coeficiente b:</label>
+            <input type="number" id="b" required>
+
+            <label for="c">Coeficiente c:</label>
+            <input type="number" id="c" required>
+
+            <button type="button" onclick="solveQuadratic()">Calcular</button>
+        </form>
+
+        <div id="result" class="result" style="display: none;"></div>
+        <div id="chart" class="chart" style="display: none;"></div>
+    </div>
+
+    <script>
+        function solveQuadratic() {
+            const a = parseFloat(document.getElementById('a').value);
+            const b = parseFloat(document.getElementById('b').value);
+            const c = parseFloat(document.getElementById('c').value);
+
+            if (isNaN(a) || isNaN(b) || isNaN(c)) {
+                alert('Por favor, introduce valores válidos.');
+                return;
+            }
+
+            if (a === 0) {
+                alert('El coeficiente a no puede ser 0.');
+                return;
+            }
+
+            const discriminant = b * b - 4 * a * c;
+            let resultText;
+
+            if (discriminant > 0) {
+                const root1 = (-b + Math.sqrt(discriminant)) / (2 * a);
+                const root2 = (-b - Math.sqrt(discriminant)) / (2 * a);
+                resultText = `Las raíces son reales y diferentes:<br>Raíz 1: ${root1}<br>Raíz 2: ${root2}`;
+            } else if (discriminant === 0) {
+                const root = -b / (2 * a);
+                resultText = `Las raíces son reales e iguales:<br>Raíz: ${root}`;
+            } else {
+                const realPart = -b / (2 * a);
+                const imaginaryPart = Math.sqrt(-discriminant) / (2 * a);
+                resultText = `Las raíces son complejas:<br>Raíz 1: ${realPart} + ${imaginaryPart}i<br>Raíz 2: ${realPart} - ${imaginaryPart}i`;
+            }
+
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = resultText;
+            resultDiv.style.display = 'block';
+
+            generateChart(a, b, c);
+        }
+
+        function generateChart(a, b, c) {
+            const chartDiv = document.getElementById('chart');
+
+            // Generar datos para el gráfico
+            const xValues = [];
+            const yValues = [];
+            for (let x = -10; x <= 10; x += 0.1) {
+                xValues.push(x);
+                yValues.push(a * x * x + b * x + c);
+            }
+
+            // Crear la URL de la API de QuickChart
+            const chartUrl = `https://quickchart.io/chart?c=${encodeURIComponent(JSON.stringify({
+                type: 'line',
+                data: {
+                    labels: xValues,
+                    datasets: [{
+                        label: 'y = ${a}x² + ${b}x + ${c}',
+                        data: yValues,
+                        borderColor: 'blue',
+                        fill: false
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: { title: { display: true, text: 'x' } },
+                        y: { title: { display: true, text: 'y' } }
+                    }
+                }
+            }))}`;
+
+            // Mostrar el gráfico
+            chartDiv.innerHTML = `<img src="${chartUrl}" alt="Gráfico de la ecuación cuadrática">`;
+            chartDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
